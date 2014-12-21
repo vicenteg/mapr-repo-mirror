@@ -1,0 +1,2 @@
+
+mirror ansible_ssh_user=root ansible_connection=local

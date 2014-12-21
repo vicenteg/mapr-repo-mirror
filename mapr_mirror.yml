@@ -1,0 +1,83 @@
+
+---
+- hosts: mirror
+  vars:
+    - mirror_path: /var/www/html/releases
+    - mirror_base_url: http://package.mapr.com
+    - mirror_dict:
+        v4core:
+          dest: "{{mirror_path}}/v4.0.1/redhat"
+          filename: "mapr-v4.0.1GA.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/v4.0.1/redhat/mapr-v4.0.1GA.rpm.tgz"
+        v4ecosystem:
+          dest: "{{mirror_path}}/ecosystem-4.x/redhat"
+          filename: "mapr-ecosystem-4.x-20141205.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem-4.x/redhat/mapr-ecosystem-4.x-20141205.rpm.tgz"
+        v3core:
+          dest: "{{mirror_path}}/v3.1.1/redhat"
+          filename: "mapr-v3.1.1GA.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/v3.1.1/redhat/mapr-v3.1.1GA.rpm.tgz"
+        v3ecosystem:
+          dest: "{{mirror_path}}/ecosystem/redhat"
+          filename: "mapr-ecosystem-20141205.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem/redhat/mapr-ecosystem-20141205.rpm.tgz"
+
+  tasks:
+    - name: install libselinux-python
+      yum: name=libselinux-python state=present
+      when: ansible_distribution in ('RedHat', 'CentOS')
+
+    - name: install httpd, createrepo, wget
+      yum: name={{item}} state=present
+      with_items:
+        - httpd
+        - createrepo
+        - wget
+      when: ansible_distribution in ('RedHat', 'CentOS', 'Amazon')
+
+    - name: install apache2, createrepo, wget (ubuntu)
+      apt: name={{item}} state=present
+      with_items:
+        - apache2
+        - createrepo
+        - wget
+      when: ansible_distribution in ('Ubuntu', 'Debian')
+
+    - name: start httpd
+      service: name=httpd enabled=yes state=started
+      when: ansible_distribution in ('RedHat', 'CentOS', 'Amazon')
+
+    - name: start apache2
+      service: name=apache2 enabled=yes state=started
+      when: ansible_distribution in ('Ubuntu', 'Debian')
+
+    - name: create repo home
+      file: path="{{mirror_path}}" mode=0755 state=directory
+
+    - name: configure selinux
+      selinux: state=permissive policy=targeted
+      when: ansible_distribution in ('RedHat', 'CentOS')
+
+    - name: download packages
+      get_url: dest={{mirror_path}} url={{item.value.url}}
+      with_dict: mirror_dict
+
+    - name: make the mirror directories
+      file: state=directory path={{item.value.dest}} 
+      with_dict: mirror_dict
+
+    - name: unpack the tarballs
+      command: tar -C {{item.value.dest}} -xf {{mirror_path}}/{{item.value.filename}}
+      args:
+        chdir: "{{item.value.dest}}"
+      with_dict: mirror_dict
+
+    - name: create the Redhat repos
+      command: createrepo {{item.value.dest}}
+      with_dict: mirror_dict
+      
+    - name: write out a v3.x repo file for this server
+      local_action: template src=mapr.v3.repo.j2 dest=./maprtech.v3.repo mode=0644 
+
+    - name: write out a v4.x repo file for this server
+      local_action: template src=mapr.v4.repo.j2 dest=./maprtech.v4.repo mode=0644 

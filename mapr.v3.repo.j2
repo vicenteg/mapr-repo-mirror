@@ -1,0 +1,14 @@
+[maprtech]
+name=MapR 
+baseurl=http://{{hostvars['mirror'].ansible_default_ipv4.address}}/mapr/package.mapr.com/releases/v3.1.1/redhat/
+enabled=1
+gpgcheck=0
+protect=1
+
+[maprecosystem]
+name=MapR Ecosystem
+baseurl=http://{{hostvars['mirror'].ansible_default_ipv4.address}}/mapr/package.mapr.com/releases/ecosystem/redhat/
+enabled=1
+gpgcheck=0
+protect=1
+
