@@ -76,8 +76,8 @@
       command: createrepo {{item.value.dest}}
       with_dict: mirror_dict
       
-    - name: write out a v3.x repo file for this server
+    - name: write v3 repo file
       local_action: template src=mapr.v3.repo.j2 dest=./maprtech.v3.repo mode=0644 
 
-    - name: write out a v4.x repo file for this server
+    - name: write v4 repo file
       local_action: template src=mapr.v4.repo.j2 dest=./maprtech.v4.repo mode=0644 
