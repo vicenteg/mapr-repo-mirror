@@ -1,26 +1,34 @@
 
 ---
-- hosts: mirror
+- hosts: localhost
   vars:
     - mirror_path: /var/www/html/releases
     - mirror_base_url: http://package.mapr.com
     - mirror_dict:
-        v4core:
-          dest: "{{mirror_path}}/v4.0.1/redhat"
-          filename: "mapr-v4.0.1GA.rpm.tgz"
-          url: "{{mirror_base_url}}/releases/v4.0.1/redhat/mapr-v4.0.1GA.rpm.tgz"
-        v4ecosystem:
+        v5.0.0-core:
+          dest: "{{mirror_path}}/v5.0.0/redhat"
+          filename: "mapr-v5.0.0GA.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/v5.0.0/redhat/mapr-v5.0.0GA.rpm.tgz"
+        v5.0.0-ecosystem:
+          dest: "{{mirror_path}}/ecosystem-5.x/redhat"
+          filename: "mapr-ecosystem-5.x-20150909.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem-5.x/redhat/mapr-ecosystem-5.x-20150909.rpm.tgz"
+        v4.1.0-core:
+          dest: "{{mirror_path}}/v4.1.0/redhat"
+          filename: "mapr-v4.1.0GA.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/v4.1.0/redhat/mapr-v4.1.0GA.rpm.tgz"
+        v4.1.0-ecosystem:
           dest: "{{mirror_path}}/ecosystem-4.x/redhat"
-          filename: "mapr-ecosystem-4.x-20141205.rpm.tgz"
-          url: "{{mirror_base_url}}/releases/ecosystem-4.x/redhat/mapr-ecosystem-4.x-20141205.rpm.tgz"
-        v3core:
+          filename: "mapr-ecosystem-4.x-20150910.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem-4.x/redhat/mapr-ecosystem-4.x-20150910.rpm.tgz"
+        v3.1.1-core:
           dest: "{{mirror_path}}/v3.1.1/redhat"
           filename: "mapr-v3.1.1GA.rpm.tgz"
           url: "{{mirror_base_url}}/releases/v3.1.1/redhat/mapr-v3.1.1GA.rpm.tgz"
-        v3ecosystem:
+        v3.1.1-ecosystem:
           dest: "{{mirror_path}}/ecosystem/redhat"
-          filename: "mapr-ecosystem-20141205.rpm.tgz"
-          url: "{{mirror_base_url}}/releases/ecosystem/redhat/mapr-ecosystem-20141205.rpm.tgz"
+          filename: "mapr-ecosystem-20150909.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem/redhat/mapr-ecosystem-20150909.rpm.tgz"
 
   tasks:
     - name: install libselinux-python
@@ -54,12 +62,21 @@
     - name: create repo home
       file: path="{{mirror_path}}" mode=0755 state=directory
 
+    - name: create pub dir for gpg keys
+      file: path="{{mirror_path}}/pub" state=directory mode=0755
+
     - name: configure selinux
       selinux: state=permissive policy=targeted
       when: ansible_distribution in ('RedHat', 'CentOS')
 
+    - name: get GPG key
+      get_url: dest={{mirror_path}}/pub/{{item}} url={{mirror_base_url}}/releases/pub/{{item}}
+      with_items:
+        - gnugpg.key
+        - maprgpg.key
+
     - name: download packages
-      get_url: dest={{mirror_path}} url={{item.value.url}}
+      get_url: dest={{mirror_path}}/{{item.value.filename}} url={{item.value.url}}
       with_dict: mirror_dict
 
     - name: make the mirror directories
@@ -67,17 +84,15 @@
       with_dict: mirror_dict
 
     - name: unpack the tarballs
-      command: tar -C {{item.value.dest}} -xf {{mirror_path}}/{{item.value.filename}}
-      args:
-        chdir: "{{item.value.dest}}"
+      unarchive: copy=no dest={{item.value.dest}} src={{mirror_path}}/{{item.value.filename}}
       with_dict: mirror_dict
 
     - name: create the Redhat repos
       command: createrepo {{item.value.dest}}
       with_dict: mirror_dict
       
-    - name: write v3 repo file
-      local_action: template src=mapr.v3.repo.j2 dest=./maprtech.v3.repo mode=0644 
+    #- name: write v3 repo file
+    #  local_action: template src=mapr.v3.repo.j2 dest=./maprtech.v3.repo mode=0644 
 
-    - name: write v4 repo file
-      local_action: template src=mapr.v4.repo.j2 dest=./maprtech.v4.repo mode=0644 
+    #- name: write v4 repo file
+    #  local_action: template src=mapr.v4.repo.j2 dest=./maprtech.v4.repo mode=0644 
