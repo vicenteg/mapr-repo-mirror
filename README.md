@@ -19,6 +19,8 @@ Once run, you will have a mirror in `/var/www/html/releases`.
 Installing Ansible
 ===
 
+Skip this if ansible is already installed. If it is not installed and you want to install it the easy way, refer to the Ansible documentation, or try `sudo pip install ansible`. Note that RHEL/CentOS 6.5 and earlier have old versions of python-crypto, so that may need updating.
+
 Follow the below steps to install ansible in a [virtualenv](http://virtualenv.readthedocs.org/en/latest/virtualenv.html). This results in a python installation, along with ansible, installed under the directory containing the playbooks.
 
 ```
