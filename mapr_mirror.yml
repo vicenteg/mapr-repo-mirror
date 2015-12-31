@@ -11,24 +11,24 @@
           url: "{{mirror_base_url}}/releases/v5.0.0/redhat/mapr-v5.0.0GA.rpm.tgz"
         v5.0.0-ecosystem:
           dest: "{{mirror_path}}/ecosystem-5.x/redhat"
-          filename: "mapr-ecosystem-5.x-20150909.rpm.tgz"
-          url: "{{mirror_base_url}}/releases/ecosystem-5.x/redhat/mapr-ecosystem-5.x-20150909.rpm.tgz"
+          filename: "mapr-ecosystem-5.x-20151216.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem-5.x/redhat/mapr-ecosystem-5.x-20151216.rpm.tgz"
         v4.1.0-core:
           dest: "{{mirror_path}}/v4.1.0/redhat"
           filename: "mapr-v4.1.0GA.rpm.tgz"
           url: "{{mirror_base_url}}/releases/v4.1.0/redhat/mapr-v4.1.0GA.rpm.tgz"
         v4.1.0-ecosystem:
           dest: "{{mirror_path}}/ecosystem-4.x/redhat"
-          filename: "mapr-ecosystem-4.x-20150910.rpm.tgz"
-          url: "{{mirror_base_url}}/releases/ecosystem-4.x/redhat/mapr-ecosystem-4.x-20150910.rpm.tgz"
+          filename: "mapr-ecosystem-4.x-20151118.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem-4.x/redhat/mapr-ecosystem-4.x-20151118.rpm.tgz"
         v3.1.1-core:
           dest: "{{mirror_path}}/v3.1.1/redhat"
           filename: "mapr-v3.1.1GA.rpm.tgz"
           url: "{{mirror_base_url}}/releases/v3.1.1/redhat/mapr-v3.1.1GA.rpm.tgz"
         v3.1.1-ecosystem:
           dest: "{{mirror_path}}/ecosystem/redhat"
-          filename: "mapr-ecosystem-20150909.rpm.tgz"
-          url: "{{mirror_base_url}}/releases/ecosystem/redhat/mapr-ecosystem-20150909.rpm.tgz"
+          filename: "mapr-ecosystem-20151118.rpm.tgz"
+          url: "{{mirror_base_url}}/releases/ecosystem/redhat/mapr-ecosystem-20151118.rpm.tgz"
 
   tasks:
     - name: install libselinux-python
